@@ -15,26 +15,28 @@ pipeline {
             }
         }
 
+        // Run tests and build in one step (no skipping)
         stage('Build & Test') {
             steps {
-                sh 'mvn -B clean test'
-                sh 'mvn -B -DskipTests package'
+                // run tests and package; do NOT skip tests
+                sh 'mvn -B -DskipTests=false clean package'
             }
         }
+
         stage('Debug - show workspace and surefire reports') {
             steps {
                 sh 'pwd || true'
                 sh 'echo "Workspace root listing:" && ls -la'
-                sh 'echo "Find surefire reports (full tree):" && find . -maxdepth 4 -type d -name target -exec sh -c "echo ==== {}; ls -la {}/surefire-reports || true" \\;'
-                // Show file count and sample of xmls if any
-                sh 'find . -name "*.xml" -print | sed -n "1,50p" || true'
+                sh 'echo "Find surefire reports (full tree):" && find . -maxdepth 6 -type d -name target -exec sh -c "echo ==== {}; ls -la {}/surefire-reports || true" \\;'
+                sh 'echo "List all xml files (first 200 lines):" && find . -name "*.xml" -print | sed -n "1,200p" || true'
             }
         }
 
         stage('Publish Test Results') {
-            post {
-                always {
-                    junit '**/target/surefire-reports/*.xml'
+            steps {
+                script {
+                    // Publish surefire XML reports. This will fail the build if none are found.
+                    junit testResults: '**/target/surefire-reports/*.xml', allowEmptyResults: false, keepLongStdio: true
                 }
             }
         }
