@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        IMAGE_NAME = "yourdockerhubuser/bankpro-core"
+        IMAGE_NAME = "prem6016/bankpro-core"
         IMAGE_TAG  = "${BUILD_NUMBER}"
         IMAGE_FULL = "${IMAGE_NAME}:${IMAGE_TAG}"
     }
