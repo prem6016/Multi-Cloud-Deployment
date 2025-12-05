@@ -20,6 +20,18 @@ pipeline {
                 sh 'mvn -B clean test'
                 sh 'mvn -B -DskipTests package'
             }
+        }
+        stage('Debug - show workspace and surefire reports') {
+            steps {
+                sh 'pwd || true'
+                sh 'echo "Workspace root listing:" && ls -la'
+                sh 'echo "Find surefire reports (full tree):" && find . -maxdepth 4 -type d -name target -exec sh -c "echo ==== {}; ls -la {}/surefire-reports || true" \\;'
+                // Show file count and sample of xmls if any
+                sh 'find . -name "*.xml" -print | sed -n "1,50p" || true'
+            }
+        }
+
+        stage('Publish Test Results') {
             post {
                 always {
                     junit '**/target/surefire-reports/*.xml'
