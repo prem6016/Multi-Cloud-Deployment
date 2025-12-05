@@ -1,0 +1,83 @@
+---
+- name: Deploy BankPro application to multi-cloud hosts
+  hosts: all
+  become: yes
+  vars:
+    container_name: prem6016/bankpro-core
+    published_port: "8080"
+    host_port: "8080"
+  tasks:
+
+    - name: Ensure apt cache is fresh (Debian/Ubuntu)
+      apt:
+        update_cache: yes
+      when: ansible_os_family == "Debian"
+
+    - name: Install Docker (Debian/Ubuntu)
+      apt:
+        name:
+          - apt-transport-https
+          - ca-certificates
+          - curl
+          - gnupg
+          - lsb-release
+        state: present
+      when: ansible_os_family == "Debian"
+
+    - name: Add Docker GPG key
+      apt_key:
+        url: https://download.docker.com/linux/ubuntu/gpg
+        state: present
+      when: ansible_os_family == "Debian"
+
+    - name: Add Docker repository
+      apt_repository:
+        repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu {{ ansible_distribution_release }} stable
+      when: ansible_os_family == "Debian"
+
+    - name: Install docker-ce
+      apt:
+        name:
+          - docker-ce
+          - docker-ce-cli
+          - containerd.io
+        state: present
+        update_cache: yes
+      when: ansible_os_family == "Debian"
+
+    - name: Ensure user is in docker group (optional)
+      user:
+        name: "{{ ansible_user }}"
+        groups: docker
+        append: yes
+      when: ansible_user is defined
+
+    - name: Login to DockerHub (if using private repo) - optional
+      docker_login:
+        username: "{{ dockerhub_user | default(omit) }}"
+        password: "{{ dockerhub_pass | default(omit) }}"
+      when: dockerhub_user is defined and dockerhub_pass is defined
+
+    - name: Pull application image
+      community.docker.docker_image:
+        name: "{{ docker_image }}"
+        source: pull
+      vars:
+        ansible_python_interpreter: /usr/bin/python3
+
+    - name: Stop and remove existing container if present
+      community.docker.docker_container:
+        name: "{{ container_name }}"
+        state: absent
+        force_kill: true
+
+    - name: Run container
+      community.docker.docker_container:
+        name: "{{ container_name }}"
+        image: "{{ docker_image }}"
+        state: started
+        restart_policy: always
+        published_ports:
+          - "{{ host_port }}:{{ published_port }}"
+        env:
+          JAVA_OPTS: "-Xms256m -Xmx512m"
