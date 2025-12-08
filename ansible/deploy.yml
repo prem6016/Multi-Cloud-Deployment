@@ -3,7 +3,8 @@
   hosts: all
   become: yes
   vars:
-    container_name: bankproApp
+    container_name: bankproAp
+    docker_image: prem6016/bankpro-core:latest
     published_port: "8080"
     host_port: "8080"
   tasks:
