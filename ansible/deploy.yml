@@ -3,7 +3,7 @@
   hosts: all
   become: yes
   vars:
-    container_name: prem6016/bankpro-core:10
+    container_name: bankproApp
     published_port: "8080"
     host_port: "8080"
   tasks:
