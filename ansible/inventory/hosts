@@ -5,7 +5,7 @@ ec2-100-31-126-34.compute-1.amazonaws.com
 #ec2-44-222-61-199.compute-1.amazonaws.com ansible_user=ubuntu
 #localhost ansible_connection=local ansible_python_interpreter=/usr/bin/python3 #for localhost
 
-# [azure]
-# vm-westus.cloudapp.net ansible_user=azureuser
+[azure]
+74.241.132.43
 
 
