@@ -69,6 +69,8 @@ pipeline {
                 ]) {
                     sh """
                         chmod 600 ${SSH_KEY}
+                        
+                        cd ansible
 
                         # Run Ansible locally from the checked-out repo against the remote host
                         ansible-playbook -i inventory/hosts deploy.yml \\
