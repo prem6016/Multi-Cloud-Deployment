@@ -1,9 +1,14 @@
+#add this to the host file of Ansible in the Ansible main control node
+
 [aws]
-ec2-44-222-61-199.compute-1.amazonaws.com ansible_user=ubuntu
+ec2-100-31-126-34.compute-1.amazonaws.com ansible_user=ubuntu
+#ec2-44-222-61-199.compute-1.amazonaws.com ansible_user=ubuntu
+#localhost ansible_connection=local ansible_python_interpreter=/usr/bin/python3 #for localhost
 
 # [azure]
 # vm-westus.cloudapp.net ansible_user=azureuser
 
 [all:vars]
-ansible_ssh_private_key_file=/root/.ssh/id_rsa_ansible
+ansible_ssh_private_key_file=/root/.ssh/id_rsa_ansible #path to secret key
+ansible_ssh_common_args='-o StrictHostKeyChecking=no'
 # if you use dockerhub private repo, you can inject credentials via vault or extra-vars

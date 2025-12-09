@@ -69,9 +69,14 @@ pipeline {
                 ]) {
                     sh """
                         chmod 600 ${SSH_KEY}
-                        ssh -o StrictHostKeyChecking=no -i ${SSH_KEY} ${ANSIBLE_USER}@${ANSIBLE_HOST} \\
-                            'cd ~/ansible && ansible-playbook -i inventory/hosts deploy.yml \\
-                             --extra-vars "docker_image=${IMAGE_FULL}"'
+
+                        # Run Ansible locally from the checked-out repo against the remote host
+                        ansible-playbook -i inventory/hosts deploy.yml \\
+                          --user ${ANSIBLE_USER} \\
+                          --private-key=${SSH_KEY} \\
+                          --extra-vars "docker_image=${IMAGE_FULL}" \\
+                          --limit ${ANSIBLE_HOST} \\
+                          --ssh-extra-args='-o StrictHostKeyChecking=no'
                     """
                 }
             }
